@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import place_order 
+from . import views
 
 urlpatterns = [
-    path('place',place_order,name='Place_Order')
+    path('place',views.place_order,name='place_Order')
 ]

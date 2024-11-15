@@ -187,12 +187,12 @@ def get_reviews(request):
         # Calculate the average rating
         total_rating = sum(review.rating for review in reviews)
         average_rating = total_rating / reviews.count() if reviews.exists() else 0
-        
+         
         # Prepare the list of reviews
         review_list = [
             {
                 'review_id': review.review_id,
-                'customer_id': review.customer_id.customer_id,
+                'customer_id': review.customer_id,
                 'rating': review.rating,
                 'review': review.review_text,
                 'created_at': review.created_at,
