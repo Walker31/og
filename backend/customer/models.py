@@ -47,6 +47,5 @@ class Customer(models.Model):
         return self.name if self.name else self.user.username
 
     class Meta:
-        verbose_name = 'Customer'
-        verbose_name_plural = 'Customers'
-        managed =True
+        db_table = 'customer'
+        managed =False

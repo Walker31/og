@@ -5,7 +5,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import Customer
+from .models import Customer,Address
 from orders.models import Order
 from products.models import Product
 from products.views import get_wishlist_products
@@ -61,10 +61,8 @@ def login_customer(request):
     username = request.data.get('username')
     password = request.data.get('password')
 
-    print("Hi")
     # Authenticate the user using the User model (not Customer model anymore)
     user = authenticate(request, username=username, password=password)
-    print("hi2")
 
     if user is not None:
         login(request, user)
@@ -92,14 +90,13 @@ def signup_customer(request):
     print(f"Email: {email}")
     print(f"Password: {password}")
     print(f"Phone Number: {phone_no}")
-
-    # Check if the email already exists in the User model (not the Customer table anymore)
+    
     if User.objects.filter(email=email).exists():
         return JsonResponse({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         # Create a new user with the provided credentials
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create_user(username=username, email=email, password=password,first_name=username)
 
         # Create a new customer entry linked to this user
         customer = Customer(
@@ -109,12 +106,14 @@ def signup_customer(request):
             address=None  # Set to None or a default address if desired
         )
         customer.save()
-
         return JsonResponse({"message": f"Customer created successfully. Welcome, {username}!"}, status=status.HTTP_201_CREATED)
     except ValidationError as e:
+        print(f"Validation Error: {e}")  # Log specific validation errors
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
+        print(f"Exception occurred: {e}")  # Log any other exceptions
         return JsonResponse({"error": "An error occurred during signup."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @csrf_exempt
@@ -125,5 +124,94 @@ def logout_customer(request):
     return JsonResponse({
         'message': 'Logout successful'
     }, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
+def add_address(request):
+    customer_id = request.data.get('customer')
+    pincode = request.data.get('pincode')
+    city = request.data.get('city')
+    state = request.data.get('state')
+    location = request.data.get('location')
+    landmark = request.data.get('landmark')
+
+    print(f"Location: {location}")
+    print(f"City: {city}")
+    print(f"State: {state}")
+    print(f"Pincode: {pincode}")
+    print(f"Landmark: {landmark}")
+    print(f"Customer ID: {customer_id}")
+
+    try:
+        # Create the address object
+        address = Address(
+            pincode=pincode,
+            city=city,
+            state=state,
+            location=location,
+            landmark=landmark
+        )
+        address.save()  # Save the address to the database
+
+        # Retrieve the customer based on the provided customer_id
+        customer = get_object_or_404(Customer, customer_id=customer_id)
+
+        # Assign the created address to the customer
+        customer.address = address  # Set the address field of the customer
+
+        # Save the customer to update the address_id in the Customer table
+        customer.save()
+
+        return JsonResponse({"message": f"Address saved successfully and linked to customer."}, status=status.HTTP_201_CREATED)
+    except ValidationError as e:
+        print(f"Validation Error: {e}")  # Log specific validation errors
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(f"Exception occurred: {e}")  # Log any other exceptions
+        return JsonResponse({"error": "An error occurred during adding address."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt
+@api_view(['DELETE'])
+def delete_address(request):
+    customer_id = request.data.get('customer')
+    address_id = request.data.get('address_id')  # The address ID to delete
+
+    try:
+        # Get the address to delete based on the address_id and customer_id
+        address = get_object_or_404(Address, address_id=address_id, customer_id=customer_id)
+
+        # Delete the address
+        address.delete()
+
+        return JsonResponse({"message": "Address deleted successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return JsonResponse({"error": "An error occurred while deleting the address"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@csrf_exempt
+@api_view(['PUT'])
+def update_address(request):
+    customer_id = request.data.get('customer')
+    address_id = request.data.get('address_id')
+
+    # Get the fields to update from the request
+    fields_to_update = ['pincode', 'city', 'state', 'location', 'landmark']
+    
+    try:
+        # Retrieve the address object to update
+        address = get_object_or_404(Address, address_id=address_id, customer_id=customer_id)
+        
+        # Update the fields that are provided in the request
+        for field in fields_to_update:
+            value = request.data.get(field)
+            if value:
+                setattr(address, field, value)
+        
+        address.save()  # Save the updated address
+
+        return JsonResponse({"message": "Address updated successfully"}, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
