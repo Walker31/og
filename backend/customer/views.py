@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from .models import Customer,Address
 from orders.models import Order
-from products.models import Product
 from products.views import get_wishlist_products
 from django.views.decorators.csrf import csrf_exempt
 
@@ -21,9 +20,10 @@ def get_customer_profile(request):
     # Retrieve the customer object (associated with the User model)
     customer = get_object_or_404(Customer, customer_id=customer_id)
     
-    # Fetch all orders where order_status is 'Delivered'
-    previous_orders = Order.objects.filter(customer_id=customer_id, order_status="Delivered")
+    # Fetch all delivered orders for the customer
+    delivered_orders = Order.objects.filter(customer_id=customer_id, order_status="Delivered")
     
+    # Prepare the customer data
     customer_data = {
         "customer_id": customer.customer_id,
         "name": customer.user.username,
@@ -39,21 +39,23 @@ def get_customer_profile(request):
         "wishlist": get_wishlist_products(customer_id),
     }
 
-    # Iterate through the previous orders and collect the related product information
-    for order in previous_orders:
-        product = Product.objects.get(product_id=order.product_id.product_id)  # Use product_id from the order
-        product_info = {
-            "product_id": product.product_id,
-            "name": product.product_name,
-            "description": product.product_description,
-            "price": product.product_price,
-            "image": product.product_images,
-            "quantity": order.quantity,
-            "status": order.order_status
-        }
-        customer_data["previous_orders"].append(product_info)
-    
-    return JsonResponse(customer_data)
+    # Iterate through the delivered orders and collect order item details
+    for order in delivered_orders:
+        order_items = order.order_items.all()  # Use the `related_name` for reverse relation
+        for item in order_items:
+            product = item.product
+            product_info = {
+                "product_id": product.product_id,
+                "name": product.product_name,
+                "description": product.product_description,
+                "price": product.product_price,
+                "image": product.product_images,
+                "quantity": item.quantity,
+                "status": order.order_status,
+            }
+            customer_data["previous_orders"].append(product_info)
+
+    return JsonResponse(customer_data, safe=False)
 
 @csrf_exempt
 @api_view(['POST'])
