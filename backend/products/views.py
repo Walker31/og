@@ -173,6 +173,56 @@ def add_review(request):
         return JsonResponse({"error": str(e)}, status=500)
     
 @api_view(['GET'])
+def get_product_by_id(request, product_id):
+    # Retrieve the product based on the product_id
+    product = get_object_or_404(Product, product_id=product_id)
+
+    # Prepare the product information to return in the response
+    product_info = {
+        'product_id': product.product_id,
+        'product_name': product.product_name,
+        'product_description': product.product_description,
+        'product_price': product.product_price,
+        'stock_quantity': product.stock_quantity,
+        'category_name': product.category.category_name,  # Assuming category is a related field
+        'product_images': product.product_images  # Assuming it's a field in your model
+    }
+
+    # Call the get_reviews function to get reviews for the product
+    reviews = Review.objects.filter(product_id=product_id)
+    total_rating = sum(review.rating for review in reviews)
+    average_rating = total_rating / reviews.count() if reviews.exists() else 0
+
+    review_list = []
+    for review in reviews:
+        try:
+            review_list.append({
+                'review_id': review.review_id,
+                'customer_id': review.customer_id.customer_id if review.customer_id else None,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at,
+                'updated_at': review.updated_at
+            })
+        except Customer.DoesNotExist:
+            # Log the missing customer and skip the review
+            review_list.append({
+                'review_id': review.review_id,
+                'customer_id': None,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at,
+                'updated_at': review.updated_at
+            })
+
+    # Attach reviews and average rating to the product info
+    product_info['reviews'] = review_list
+    product_info['average_rating'] = round(average_rating, 2)
+
+    return JsonResponse({'product': product_info}, status=200)
+
+    
+@api_view(['GET'])
 def get_reviews(request):
     product_id = request.GET.get('product_id')
     

@@ -66,9 +66,10 @@ def login_customer(request):
 
     if user is not None:
         login(request, user)
+        customer = Customer.objects.filter(user=user).first()
         return JsonResponse({
             'message': 'Login successful',
-            'user_id': user.id,
+            'customer_id': customer.customer_id,
             'username': user.username,
             'email': user.email
         }, status=status.HTTP_200_OK)
@@ -81,27 +82,24 @@ def login_customer(request):
 @api_view(['POST'])
 def signup_customer(request):
     username = request.data.get('username')
-    email = request.data.get('email')
     password = request.data.get('password')
     phone_no = request.data.get('phone_no')
 
     # Log the received data (optional for debugging)
     print(f"Username: {username}")
-    print(f"Email: {email}")
     print(f"Password: {password}")
     print(f"Phone Number: {phone_no}")
     
-    if User.objects.filter(email=email).exists():
-        return JsonResponse({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
+    if Customer.objects.filter(phone_no=phone_no).exists():
+        return JsonResponse({"error": "Phone Number already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         # Create a new user with the provided credentials
-        user = User.objects.create_user(username=username, email=email, password=password,first_name=username)
+        user = User.objects.create_user(username=username, password=password,first_name=username)
 
         # Create a new customer entry linked to this user
         customer = Customer(
             user=user,
-            email=email,
             phone_no=phone_no,
             address=None  # Set to None or a default address if desired
         )

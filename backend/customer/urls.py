@@ -9,5 +9,4 @@ urlpatterns = [
     path('address/add',views.add_address,name='Add Address'),
     path('address/delete',views.delete_address,name='Delete Address'),
     path('address/update',views.update_address,name='Update Address')
-
 ]

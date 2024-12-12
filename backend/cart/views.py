@@ -11,7 +11,7 @@ from rest_framework import status
 @api_view(['POST'])
 def add_to_cart(request):
     customer_id = request.query_params.get('customer_id')
-    product_id = request.query_params.get('product_id')
+    product_id = request.query_params.get('product_id') 
     
     if not customer_id or not product_id:
         return JsonResponse({'error': 'Both customer_id and product_id are required.'}, status=status.HTTP_400_BAD_REQUEST)
