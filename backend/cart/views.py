@@ -105,7 +105,7 @@ def view_cart(request):
         'total_qty': total_quantity
     }, status=status.HTTP_200_OK)
 
-
+# will use for admin
 @api_view(['GET'])
 def view_all_carts(request):
     cart_items = Cart.objects.all()
