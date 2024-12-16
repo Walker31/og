@@ -4,7 +4,7 @@ from .models import Customer, Address
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['address_id','customer_id','location', 'city', 'state', 'pincode', 'landmark']
+        fields = ['pincode', 'city', 'state', 'location', 'landmark']
 
 class CustomerSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
@@ -12,3 +12,4 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['customer_id','user', 'email', 'phone_no', 'address', 'created_at', 'updated_at']
+

@@ -8,5 +8,6 @@ urlpatterns = [
     path('logout',views.logout,name='LogOut'),
     path('address/add',views.add_address,name='Add Address'),
     path('address/delete',views.delete_address,name='Delete Address'),
-    path('address/update',views.update_address,name='Update Address')
+    path('address/update',views.update_address,name='Update Address'),
+    path('address/get',views.get_addresses_by_customer,name='Get Addresses')
 ]

@@ -10,7 +10,7 @@ from django.db import transaction
 def place_order(request):
     data = request.data
 
-    # Validate required fields
+    # Validate required field
     required_fields = ['customer_id', 'items', 'address_id', 'order_total', 'order_status', 'payment_type']
     for field in required_fields:
         if field not in data:
@@ -24,7 +24,7 @@ def place_order(request):
 
     # Validate address
     try:
-        address = Address.objects.get(address_id=data['address_id'])
+        address = Address.objects.get(id=data['address_id'])
     except Address.DoesNotExist:
         return JsonResponse({'error': 'Invalid address_id'}, status=status.HTTP_400_BAD_REQUEST)
 
