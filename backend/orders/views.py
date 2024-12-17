@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view
+from cart.models import Cart
 from .models import Order, OrderItem
 from customer.models import Customer,Address
 from products.models import Product
@@ -59,5 +60,6 @@ def place_order(request):
                 product_id=product,
                 quantity=quantity
             )
+            Cart.objects.filter(customer_id=customer).delete()
 
     return JsonResponse({'order_id': new_order.order_id}, status=status.HTTP_201_CREATED)

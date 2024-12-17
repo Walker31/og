@@ -92,7 +92,7 @@ def signup_customer(request):
     except ValidationError as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return JsonResponse({"error": "An error occurred during signup."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({"error": "An error occurred during signup." + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -103,7 +103,7 @@ def logout_customer(request):
 @csrf_exempt
 @api_view(['POST'])
 def add_address(request):
-    customer_id = request.data.get('customer')
+    customer_id = request.data.get('customer_id')
     pincode = request.data.get('pincode')
     city = request.data.get('city')
     state = request.data.get('state')
@@ -123,19 +123,35 @@ def add_address(request):
     except Exception as e:
         return JsonResponse({"error": "An error occurred during adding address."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view
+from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 @api_view(['DELETE'])
 def delete_address(request):
-    customer_id = request.data.get('customer')
-    address_id = request.data.get('address_id')  
+    # Extract parameters from query string (recommended for DELETE)
+    customer_id = request.GET.get('customer_id')
+    address_id = request.GET.get('address_id')
+
+    if not customer_id or not address_id:
+        return JsonResponse(
+            {"error": "customer_id and address_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     try:
-        address = get_object_or_404(Address, address_id=address_id, customer_id=customer_id)
+        address = get_object_or_404(Address, id=address_id, customer_id=customer_id)
         address.delete()
-
         return JsonResponse({"message": "Address deleted successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
-        return JsonResponse({"error": "An error occurred while deleting the address"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": f"An error occurred while deleting the address: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
 
 @api_view(['GET'])
 def get_addresses_by_customer(request):

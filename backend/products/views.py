@@ -336,19 +336,9 @@ def get_wishlist_products(customer_id):
     if not customer.wishlist:
         return []
 
-    # Retrieve products based on wishlist product IDs
-    products = Product.objects.filter(product_id__in=customer.wishlist)
-    wishlist_products = []
+    # Retrieve product IDs based on wishlist product IDs
+    product_ids = Product.objects.filter(product_id__in=customer.wishlist).values_list('product_id', flat=True)
 
-    for product in products:
-        product_info = {
-            "product_id": product.product_id,
-            "name": product.product_name,
-            "description": product.product_description,
-            "price": product.product_price,
-            "image": product.product_images
-        }
-        wishlist_products.append(product_info)
-    
-    return wishlist_products
+    return list(product_ids)
+
 

@@ -1,20 +1,230 @@
-# onegold - E-commerce Jewelry Website
+# OneGold
 
-**onegold** is an e-commerce platform designed to offer a seamless and luxurious online jewelry shopping experience. The website is built using **React.js** for the frontend, **Django** for the backend, and **PostgreSQL** for the database, ensuring a robust, scalable, and efficient platform.
+OneGold is a modern e-commerce web application designed specifically for a jewelry store. This project combines the power of Django for backend management and React for a sleek, dynamic frontend interface. It provides a seamless shopping experience for customers while ensuring robust management for store administrators.
+
+---
 
 ## Features
 
-- **Jewelry Catalog:** View an extensive collection of jewelry pieces with detailed descriptions, pricing, and high-quality images.
-- **Search & Filters:** Easily search and filter products based on category, price, material, and more.
-- **User Authentication:** Secure user registration, login, and account management.
-- **Cart & Checkout:** Add items to the cart and proceed with a smooth checkout process.
-- **Order Management:** View order history, track orders, and manage returns.
-- **Payment Gateway Integration:** Secure payment options for easy transactions.
-- **Responsive Design:** Optimized for both desktop and mobile devices for a seamless user experience.
+### Customer-Facing Features:
+
+- **User Authentication**: Sign up, log in, log out, and password recovery functionalities.
+- **Product Browsing**: View products with detailed descriptions, images, and prices.
+- **Category Filtering**: Search and filter products based on categories, price range, or offers.
+- **Shopping Cart**: Add/remove items, update quantities, and view total costs.
+- **Wishlist**: Save favorite items for later.
+- **Checkout System**: Secure order placement with payment gateway integration.
+
+### Admin-Facing Features:
+
+- **Product Management**: Add, update, and delete product details.
+- **Order Management**: View and update the status of orders.
+- **Customer Management**: View registered customers and their purchase history.
+- **Analytics Dashboard**: Track sales, popular products, and customer activities.
+
+---
 
 ## Tech Stack
 
-- **Frontend:** [React.js](https://reactjs.org/) - A JavaScript library for building user interfaces.
-- **Backend:** [Django](https://www.djangoproject.com/) - A high-level Python web framework.
-- **Database:** [PostgreSQL](https://www.postgresql.org/) - A powerful, open-source object-relational database system.
+### Backend:
+
+- **Django**: Core backend framework for handling business logic and APIs.
+- **Django REST Framework (DRF)**: For building RESTful APIs.
+- **PostgreSQL**: Database for storing product and user information.
+
+### Frontend:
+
+- **React.js**: For building a responsive and dynamic user interface.
+- **Material-UI (MUI)**: For styling and pre-built UI components.
+- **Axios**: For making API requests to the backend.
+
+### Additional Tools:
+
+- **Stripe**: For payment processing.
+- **Celery**: For handling asynchronous tasks like sending order confirmation emails.
+- **Redis**: As a message broker for Celery.
+- **Docker**: For containerization of the application.
+- **Nginx**: For serving the application in production.
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 14+
+- PostgreSQL
+- Docker (optional, for containerized setup)
+
+### Backend Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/onegold.git
+   cd onegold/backend
+   ```
+
+2. Create a virtual environment and activate it:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure the environment variables:
+
+   - Create a `.env` file in the `backend` directory.
+   - Add the following variables:
+     ```env
+     SECRET_KEY=your-django-secret-key
+     DEBUG=True
+     DATABASE_URL=postgres://username:password@localhost:5432/onegold
+     STRIPE_SECRET_KEY=your-stripe-secret-key
+     ```
+
+5. Apply database migrations:
+
+   ```bash
+   python manage.py migrate
+   ```
+
+6. Start the development server:
+
+   ```bash
+   python manage.py runserver
+   ```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+
+   ```bash
+   cd ../frontend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+---
+
+## Usage
+
+- Visit `http://localhost:8000` to access the backend.
+- Visit `http://localhost:3000` to access the React frontend.
+
+---
+
+## Project Structure
+
+### Backend:
+
+```
+backend/
+|-- onegold/
+|   |-- settings.py
+|   |-- urls.py
+|   |-- wsgi.py
+|
+|-- products/
+|   |-- models.py
+|   |-- views.py
+|   |-- serializers.py
+|
+|-- orders/
+|   |-- models.py
+|   |-- views.py
+|   |-- tasks.py
+|
+|-- users/
+|   |-- models.py
+|   |-- views.py
+```
+
+### Frontend:
+
+```
+frontend/
+|-- src/
+|   |-- components/
+|   |-- pages/
+|   |-- App.js
+|   |-- index.js
+```
+
+---
+
+## API Endpoints
+
+### Authentication:
+
+- `POST /api/auth/login/`: User login
+- `POST /api/auth/register/`: User registration
+- `POST /api/auth/logout/`: User logout
+
+### Products:
+
+- `GET /api/products/`: List all products
+- `GET /api/products/:id/`: Get product details
+
+### Cart:
+
+- `POST /api/cart/add/`: Add product to cart
+- `DELETE /api/cart/remove/`: Remove product from cart
+
+### Orders:
+
+- `POST /api/orders/`: Place an order
+- `GET /api/orders/:id/`: Get order details
+
+---
+
+## Deployment
+
+### Using Docker:
+
+1. Build and run the Docker containers:
+   ```bash
+   docker-compose up --build
+   ```
+2. Access the application:
+   - Backend: `http://localhost:8000`
+   - Frontend: `http://localhost:3000`
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+---
+
+## Contributors
+
+- [Your Name](https://github.com/your-username)
+- Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+## Acknowledgments
+
+- **Django**: For making backend development seamless.
+- **React**: For a dynamic and interactive frontend.
+- **Material-UI**: For providing modern UI components.
 
