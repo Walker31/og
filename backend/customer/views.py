@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from .models import Customer, Address
 from orders.models import Order
 from products.views import get_wishlist_products
+from .serializers import AddressSerializer
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
@@ -115,6 +116,7 @@ def add_address(request):
 
         # Create and save the address for the customer
         address = Address(customer=customer, pincode=pincode, city=city, state=state, location=location, landmark=landmark)
+        print(address)
         address.save()
 
         return JsonResponse({"message": "Address saved successfully and linked to customer."}, status=status.HTTP_201_CREATED)
@@ -122,12 +124,6 @@ def add_address(request):
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return JsonResponse({"error": "An error occurred during adding address."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
-from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 @api_view(['DELETE'])
@@ -152,7 +148,7 @@ def delete_address(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-
+@csrf_exempt
 @api_view(['GET'])
 def get_addresses_by_customer(request):
     customer_id = request.query_params.get('customer_id')
@@ -165,12 +161,10 @@ def get_addresses_by_customer(request):
         addresses = customer.addresses.all()
 
         if addresses.exists():
-            from .serializers import AddressSerializer
             serialized_addresses = AddressSerializer(addresses, many=True)
-            return JsonResponse(serialized_addresses.data, status=status.HTTP_200_OK,safe=False)
+            return JsonResponse({"data":serialized_addresses.data}, status=status.HTTP_200_OK, safe=False)
         else:
-            return JsonResponse({"error": "No addresses found for this customer"}, status=status.HTTP_404_NOT_FOUND)
-    
+            return JsonResponse({"message": "No addresses exist for this customer","data":[]}, status=status.HTTP_200_OK)
     except Customer.DoesNotExist:
         return JsonResponse({"error": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
 
